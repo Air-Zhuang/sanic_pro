@@ -115,6 +115,7 @@ async def view_urlfor(request):       #url_for调用视图
     url = request.app.url_for('bp_v1.SimpleView', name="clannad")
     return redirect(url)
 
+'''=========================sanic-mysql==============================================='''
 @bp_v1.route("/mysql")
 async def mysq(request):
     val = await request.app.mysql.query('SELECT title FROM book WHERE id=1;')

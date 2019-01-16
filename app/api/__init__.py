@@ -47,8 +47,5 @@ async def close_db(app, loop):
     print('after_server_stop')
     # await app.db.close()
 
-'''=========================mysql==============================================='''
-@bp_v1.route("/mysql")
-async def mysql(request):
-    val = await request.app.mysql.query('SELECT title FROM book WHERE id=1;')
-    return text(val)
+'''========================================================================'''
+from app.api import test            #别再不小心删了哥
