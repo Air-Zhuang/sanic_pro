@@ -1,16 +1,17 @@
 from sanic import Sanic
-from sanic_mysql import SanicMysql
 from app.config import local_config
 import asyncio
 
 app = Sanic(__name__)
 
 app.config.from_object(local_config)    #导入配置文件
-SanicMysql(app)                         #注册sanic_mysql
 from app.api import bp_v1
 app.blueprint(bp_v1)                    #注册蓝图
 # app.static('/static', './static')     #指定静态文件地址
 
+@app.route('/favicon.ico')
+async def test(request):
+    print("Dont have favicon.ico")
 
 # async def notify_server_started_after_five_seconds():
 #     while True:

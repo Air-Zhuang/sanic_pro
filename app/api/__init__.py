@@ -1,7 +1,7 @@
 from sanic import Blueprint
-
 from sanic.exceptions import NotFound
 from sanic.response import text
+import aiomysql
 
 bp_v1 = Blueprint('bp_v1',url_prefix='/v1')    #给蓝图起名，慎重
 
@@ -16,7 +16,7 @@ async def halt_request(request):
 
 @bp_v1.middleware('response')
 async def halt_response(request, response):
-    print("bp_middleware --> request")
+    print("bp_middleware --> response")
     # response.headers["Server"] = "Fake-Server"        #中间件可以修改请求
     # response.headers["x-xss-protection"] = "1; mode=block"
 
@@ -26,26 +26,29 @@ async def halt_response(request, response):
 #     return text("Yep, I totally found the page: {}".format(request.url))
 
 '''=========================listener==============================================='''
-async def db_setup():
-    print("mysql start successfully")
+async def db_setup(app, loop):
+    pool = await aiomysql.create_pool(**app.config['MYSQL'],loop=loop)
+    print("mysql start successfully")       #初始化aiomysql
+    return pool
+
+# async def query(pool):
+#     async def _query(sqlstr, args=None):
+#         async with pool.acquire() as conn:
+#             async with conn.cursor() as cur:
+#                 final_str = cur.mogrify(sqlstr, args)
+#                 await cur.execute(final_str)
+#                 value = await cur.fetchall()
+#                 return value
 
 @bp_v1.listener('before_server_start')
 async def setup_db(app, loop):
-    print('before_server_start')
-    app.db = await db_setup()
-
-@bp_v1.listener('after_server_start')
-async def notify_server_started(app, loop):
-    print('after_server_start')
-
-@bp_v1.listener('before_server_stop')
-async def notify_server_stopping(app, loop):
-    print('before_server_stop')
+    app.db = await db_setup(app, loop)
 
 @bp_v1.listener('after_server_stop')
 async def close_db(app, loop):
-    print('after_server_stop')
-    # await app.db.close()
+    app.db.close()
+    await app.db.wait_closed()
+    print("mysql close successfully")
 
 '''========================================================================'''
 from app.api import test            #别再不小心删了哥

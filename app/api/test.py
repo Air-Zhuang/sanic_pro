@@ -102,8 +102,8 @@ class SimpleView(HTTPMethodView):
     async def put(self, request, name):
       return text('I am put method+'+name)
 
-    async def patch(self, request, name):
-      return text('I am patch method+'+name)
+    # async def patch(self, request, name):
+    #   return text('I am patch method+'+name)
 
     async def delete(self, request, name):
       return text('I am delete method+'+name)
@@ -115,8 +115,16 @@ async def view_urlfor(request):       #url_for调用视图
     url = request.app.url_for('bp_v1.SimpleView', name="clannad")
     return redirect(url)
 
-'''=========================sanic-mysql==============================================='''
+'''=========================aiomysql==============================================='''
+# @bp_v1.route("/mysql")
+# async def mysq(request):
+#     val = await request.app.mysql.query('SELECT title FROM book WHERE id=1;')
+#     return text(val)
 @bp_v1.route("/mysql")
 async def mysq(request):
-    val = await request.app.mysql.query('SELECT title FROM book WHERE id=1;')
-    return text(val)
+    async with request.app.db.acquire() as conn:
+        async with conn.cursor() as cur:
+            await cur.execute('SELECT title FROM book WHERE id=1;')
+            print(cur.description)
+            (r,) = await cur.fetchone()
+    return text(r)
