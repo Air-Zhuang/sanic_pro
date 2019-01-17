@@ -72,15 +72,20 @@ async def post_handler(request, post_id):
     return text('Post - '+str(post_id)+'      url - '+request.url)
 
 '''=========================error-code==============================================='''
+# @bp_v1.route('/error_500')
+# async def i_am_ready_to_die(request):
+#     raise ServerError("Something bad happened", status_code=500)
+
+from app.lib import exception_code  #自定义错误返回
 @bp_v1.route('/error_500')
-async def i_am_ready_to_die(request):
-    raise ServerError("Something bad happened", status_code=500)
+async def my_500(request):
+    return exception_code.ServerError()
 
 @bp_v1.route('/error_401')
 async def no_no(request):     #自定义抛出异常
-        abort(401)
-        # this won't happen
-        text("OK")
+    abort(401)
+    # this won't happen
+    text("OK")
 
 # @bp_v1.exception(NotFound)   #将404做重定向处理
 # async def handle_404_redirect(request, exception):
@@ -93,20 +98,20 @@ class SimpleView(HTTPMethodView):
 
     @authorized()                   #这里可以单个加装饰器
     async def get(self, request, name):
-      return text('I am get method+'+name)
+        return text('I am get method+'+name)
 
     @authorized()
     async def post(self, request, name):
-      return text('I am post method+'+name)
+        return text('I am post method+'+name)
 
     async def put(self, request, name):
-      return text('I am put method+'+name)
+        return text('I am put method+'+name)
 
     # async def patch(self, request, name):
-    #   return text('I am patch method+'+name)
+    #     return text('I am patch method+'+name)
 
     async def delete(self, request, name):
-      return text('I am delete method+'+name)
+        return text('I am delete method+'+name)
 
 bp_v1.add_route(SimpleView.as_view(), '/methodview/<name>')
 
@@ -116,15 +121,7 @@ async def view_urlfor(request):       #url_for调用视图
     return redirect(url)
 
 '''=========================aiomysql==============================================='''
-# @bp_v1.route("/mysql")
-# async def mysq(request):
-#     val = await request.app.mysql.query('SELECT title FROM book WHERE id=1;')
-#     return text(val)
 @bp_v1.route("/mysql")
 async def mysq(request):
-    async with request.app.db.acquire() as conn:
-        async with conn.cursor() as cur:
-            await cur.execute('SELECT title FROM book WHERE id=1;')
-            print(cur.description)
-            (r,) = await cur.fetchone()
-    return text(r)
+    result=await request.app.db.query('SELECT title FROM book WHERE id=1;')
+    return text(result)

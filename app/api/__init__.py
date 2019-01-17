@@ -2,6 +2,7 @@ from sanic import Blueprint
 from sanic.exceptions import NotFound
 from sanic.response import text
 import aiomysql
+from functools import partial
 
 bp_v1 = Blueprint('bp_v1',url_prefix='/v1')    #给蓝图起名，慎重
 
@@ -31,18 +32,18 @@ async def db_setup(app, loop):
     print("mysql start successfully")       #初始化aiomysql
     return pool
 
-# async def query(pool):
-#     async def _query(sqlstr, args=None):
-#         async with pool.acquire() as conn:
-#             async with conn.cursor() as cur:
-#                 final_str = cur.mogrify(sqlstr, args)
-#                 await cur.execute(final_str)
-#                 value = await cur.fetchall()
-#                 return value
+async def db_query(pool,sqlstr,args=None):  #自己封装的查询方法
+    async with pool.acquire() as conn:
+        async with conn.cursor() as cur:
+            final_str = cur.mogrify(sqlstr, args)
+            await cur.execute(final_str)
+            value = await cur.fetchall()
+            return value
 
 @bp_v1.listener('before_server_start')
 async def setup_db(app, loop):
     app.db = await db_setup(app, loop)
+    app.db.query = partial(db_query,app.db)
 
 @bp_v1.listener('after_server_stop')
 async def close_db(app, loop):

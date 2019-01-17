@@ -10,7 +10,7 @@ app.blueprint(bp_v1)                    #注册蓝图
 # app.static('/static', './static')     #指定静态文件地址
 
 @app.route('/favicon.ico')
-async def test(request):
+async def favicon(request):
     print("Dont have favicon.ico")
 
 # async def notify_server_started_after_five_seconds():
