@@ -52,4 +52,5 @@ async def close_db(app, loop):
     print("mysql close successfully")
 
 '''========================================================================'''
-from app.api import test            #别再不小心删了哥
+from app.api import test            #别再不小心删了,哥~~
+from app.api import client

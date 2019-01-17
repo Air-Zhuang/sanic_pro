@@ -1,9 +1,7 @@
-from functools import wraps
-
 from sanic.exceptions import ServerError, abort, NotFound
 from sanic.response import json, text, redirect
 from sanic.views import HTTPMethodView
-
+from functools import wraps
 from . import bp_v1
 
 def authorized():       #验证权限的装饰器

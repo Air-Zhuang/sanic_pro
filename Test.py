@@ -1,10 +1,12 @@
-from functools import partial
+from sanic import Sanic
+from sanic.response import json,text
 
-def f1(p1,p2):
-    print(p1)
-    print(p2)
+app = Sanic()
 
+@app.route('/')
+async def test(request):
+    # return json({'hello': 'world'})
+    return text(request.method+request.path)
 
-a=partial(f1,1)
-
-a("xxx")
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8000,debug=True)
