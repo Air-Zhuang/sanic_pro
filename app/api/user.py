@@ -1,6 +1,6 @@
 from sanic.response import json
 from app.lib.token_auth import authorized
-from app.lib.exception_code import NotFound
+from app.lib.exception_code import NotFound,DeleteSuccess
 from app.models.user import User
 from . import bp_v1
 
@@ -22,20 +22,21 @@ async def get_user(request):
     return json(result)
 
 
-# @api.route('/<int:uid>',methods=['DELETE'])
-# def super_delete_user(uid):
-#     pass
-#
-# @api.route('',methods=['DELETE'])
-# @auth.login_required
-# def delete_user():
-#     uid=g.user.uid
-#     with db.auto_commit():
-#         user = User.query.filter_by(id=uid).first_or_404()
-#         user.delete()
-#     return DeleteSuccess()
-#
-# @api.route('',methods=['PUT'])
-# def update_user():
-#     return '/v1/user/update'
+@bp_v1.route('/user/<uid>',methods=['DELETE'])
+@authorized()
+async def super_delete_user(request,uid):
+    user = User(request=request)
+    result = await user.delete_user_by_id(uid)
+    if result:
+        return DeleteSuccess(request)
+    return NotFound(request)
+
+@bp_v1.route('/user',methods=['DELETE'])
+@authorized()
+async def delete_user(request):
+    user = User(request=request)
+    result = await user.delete_user_by_id(request.headers["user_info"].uid)
+    if result:
+        return DeleteSuccess(request)
+    return NotFound(request)
 

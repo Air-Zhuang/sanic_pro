@@ -42,7 +42,11 @@ def verify_auth_token(request,token):       #获取token中的信息。验证tok
     uid=data['uid']
     ac_type=data['type']
     scope=data['scope']
-    allow=is_in_scope(scope,request.uri_template)     #endpoint表示要访问的视图函数，类似于url_for
+    if not request.uri_template.endswith("/"):
+        request.uri_template += "/"
+    allow=is_in_scope(scope,request.method+"+"+request.uri_template)     #endpoint表示要访问的视图函数，类似于url_for
+    print(request.method+"+"+request.uri_template)
+    print(allow)
     if not allow:
         return "Forbidden"
     return User(uid,ac_type,scope)

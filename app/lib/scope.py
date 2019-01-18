@@ -6,12 +6,12 @@ class Scope:
         return self
 
 class AdminScope(Scope):
-    allow_api=['/v1/user/<uid>']
+    allow_api=['GET+/v1/user/<uid>/','DELETE+/v1/user/<uid>/']
     def __init__(self):
         self + UserScope()
 
 class UserScope(Scope):
-    allow_api = ['/v1/user']
+    allow_api = ['GET+/v1/user/','DELETE+/v1/user/']
 
 
 def is_in_scope(scope,endpoint):

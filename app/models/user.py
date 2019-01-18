@@ -32,7 +32,7 @@ class User:
 
     async def select_information(self,by,param):    #根据选择的参数查询信息
         if by=="email":
-            sql = 'SELECT * FROM `user` WHERE email="{}";'. \
+            sql = 'SELECT * FROM `user` WHERE email="{}" AND status=1;'. \
                 format(param)
             async with self.request.app.db.acquire() as conn:
                 async with conn.cursor() as cur:
@@ -42,7 +42,7 @@ class User:
                         return (create_time, status, id, email, nickname, auth, password)
             return None
         if by=="id":
-            sql = 'SELECT * FROM `user` WHERE id={};'. \
+            sql = 'SELECT * FROM `user` WHERE id={} AND status=1;'. \
                 format(param)
             async with self.request.app.db.acquire() as conn:
                 async with conn.cursor() as cur:
@@ -51,6 +51,14 @@ class User:
                         (create_time, status, id, email, nickname, auth, password) = await cur.fetchone()
                         return {"auth":auth,"email":email,"id":id,"nickname":nickname}
             return None
+
+    async def delete_user_by_id(self,param):        #软删除用户
+        sql = 'UPDATE user SET status=0 WHERE id={} AND status=1;'. \
+            format(param)
+        async with self.request.app.db.acquire() as conn:
+            async with conn.cursor() as cur:
+                found = await cur.execute(sql)
+                return found
 
 
     async def verify(self,password):

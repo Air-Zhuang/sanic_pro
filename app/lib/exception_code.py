@@ -17,6 +17,14 @@ def Success(request):
         content_type="application/json",
     )
 
+def DeleteSuccess(request):
+    return HTTPResponse(
+        json_dumps({"error_code" : 0,"message": "ok","request":request.method+" "+request.path}),
+        headers=None,
+        status=202,
+        content_type="application/json",
+    )
+
 def AuthFailed(request):
     return HTTPResponse(
         json_dumps({"error_code": 1005, "message": "authorization failed", "request": request.method + " " + request.path}),
