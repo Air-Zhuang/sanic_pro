@@ -41,6 +41,17 @@ class User:
                         (create_time, status, id, email, nickname, auth, password) = await cur.fetchone()
                         return (create_time, status, id, email, nickname, auth, password)
             return None
+        if by=="id":
+            sql = 'SELECT * FROM `user` WHERE id={};'. \
+                format(param)
+            async with self.request.app.db.acquire() as conn:
+                async with conn.cursor() as cur:
+                    found = await cur.execute(sql)
+                    if found == 1:
+                        (create_time, status, id, email, nickname, auth, password) = await cur.fetchone()
+                        return {"auth":auth,"email":email,"id":id,"nickname":nickname}
+            return None
+
 
     async def verify(self,password):
         result=await self.select_information("email",self.account)

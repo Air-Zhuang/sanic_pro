@@ -56,3 +56,4 @@ from app.api import test            #别再不小心删了,哥~~
 from app.api import client
 from app.api import token
 from app.api import book
+from app.api import user
