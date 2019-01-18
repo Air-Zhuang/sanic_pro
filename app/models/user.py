@@ -2,26 +2,25 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from datetime import datetime
 
 class User:
-    def __init__(self,request,**kwargs):
+    def __init__(self,request,account=None,nickname=None,type=None,secret=None):
         self.request=request
-        self.account=kwargs["account"]
-        self.nickname=kwargs["nickname"]
-        self._secret=kwargs["secret"]
+        self.account=account
+        self.nickname=nickname
+        self.type=type
+        self._secret=secret
 
     @property
     def secret(self):
         return self._secret
 
-    async def gene_secret(self):
-        self._secret = generate_password_hash(self.request.app.config['SECRET_KEY'])
+    async def gene_secret(self,raw):
+        self._secret = generate_password_hash(raw)
 
-    def check_secret(self):
-        if not self._secret:
-            return False
-        return check_password_hash(self._secret,self.request.app.config['SECRET_KEY'])
+    async def check_secret(self,password,raw):
+        return check_password_hash(password,raw)
 
     async def register_email(self):
-        await self.gene_secret()
+        await self.gene_secret(self._secret)
         now = int(datetime.now().timestamp())
         status = 1
         auth = 1
@@ -31,12 +30,27 @@ class User:
             async with conn.cursor() as cur:
                 await cur.execute(sql)
 
-    # @staticmethod
-    # def verify(email,password):
-    #     user=User.query.filter_by(email=email).first_or_404()
-    #     # if not user:                              #检查是否有这个用户,因为重写了get_or_404这个方法，这两行可以省略
-    #     #     raise NotFound(msg='user not found')
-    #     if not user.check_password(password):       #检查密码是否正确
-    #         raise AuthFailed()
-    #     scope='AdminScope' if user.auth==2 else 'UserScope'
-    #     return {'uid':user.id,'scope':scope}
+    async def select_information(self,by,param):    #根据选择的参数查询信息
+        if by=="email":
+            sql = 'SELECT * FROM `user` WHERE email="{}";'. \
+                format(param)
+            async with self.request.app.db.acquire() as conn:
+                async with conn.cursor() as cur:
+                    found = await cur.execute(sql)
+                    if found == 1:
+                        (create_time, status, id, email, nickname, auth, password) = await cur.fetchone()
+                        return (create_time, status, id, email, nickname, auth, password)
+            return None
+
+    async def verify(self,password):
+        result=await self.select_information("email",self.account)
+        if result:
+            verfy = await self.check_secret(result[6], password)
+            if verfy:
+                scope = 'AdminScope' if result[5] == 2 else 'UserScope'
+                print({'uid':result[2],'scope':scope})
+                return {'uid':result[2],'scope':scope}
+            else:
+                return "Password Incorrect"
+        else:
+            return "User Not Found"

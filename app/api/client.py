@@ -1,5 +1,4 @@
-from sanic.response import json, text, redirect
-from app.lib.exception_code import Success,ServerError
+from app.lib.exception_code import Success,ParameterException
 from app.validators.forms import ClientForm,UserEmailForm
 from app.models.user import User
 from . import bp_v1
@@ -18,11 +17,12 @@ async def create_client(request):
         }
         await promise[form.type.data](request)
         return Success(request)
-    return ServerError(request)
+    return ParameterException(request)
 
 
 async def __register_user_by_email(request):
     form=UserEmailForm(data=request.json)
     if form.validate():
+        print(request.json)
         user=User(request=request,**request.json)
         await user.register_email()

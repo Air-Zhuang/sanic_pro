@@ -1,13 +1,12 @@
 from wtforms import Form
-from wtforms import StringField, IntegerField, SubmitField, TextField
-from wtforms.validators import DataRequired, length, Email, Regexp, ValidationError, Length
+from wtforms import StringField, IntegerField
+from wtforms.validators import DataRequired, length, Email, Regexp
 
 
 class ClientForm(Form):
     account=StringField(validators=[DataRequired(message='不允许为空'),length(min=5,max=32)])       #账号
     secret=StringField()                                                        #密码
     type=IntegerField(validators=[DataRequired()])                              #客户端类型
-    nickname = StringField(validators=[DataRequired(),length(min=2, max=22)])
 
     # def validate_type(self,value):
     #     try:
@@ -24,9 +23,9 @@ class UserEmailForm(Form):
     # def validate_account(self, value):
     #     if User.query.filter_by(email=value.data).first():
     #         raise ValidationError()     #抛出WTForm异常
-#
-# class BookSearchForm(SanicForm):
-#     q=StringField(validators=[DataRequired()])
-#
-# class TokenForm(SanicForm):
-#     token=StringField(validators=[DataRequired()])
+
+class BookSearchForm(Form):
+    q=StringField(validators=[DataRequired()])
+
+class TokenForm(Form):
+    token=StringField(validators=[DataRequired()])
