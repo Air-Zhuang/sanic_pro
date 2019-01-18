@@ -1,7 +1,8 @@
 from collections import namedtuple
 from functools import wraps
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer,BadSignature,SignatureExpired
-from app.lib.exception_code import AuthFailed,AuthFailed2
+from app.lib.exception_code import Forbidden,AuthFailed2
+from app.lib.scope import is_in_scope
 
 User=namedtuple('User',['uid','ac_type','scope'])
 
@@ -17,31 +18,18 @@ def authorized():       #验证权限的装饰器
             if request.headers.get("Authorization",None):
                 user_info = verify_auth_token(request,request.headers["Authorization"])
             else:
-                return AuthFailed2(request,1007,"authorization failed")
+                return AuthFailed2(request,1007,"Can not find Authorization in headers")
 
-            print(user_info)
             if isinstance(user_info,User):
-                response = await f(request, *args, **kwargs)
-                print("!!!!!!!!authorized")
+                request.headers["user_info"] = user_info
+                response = await f(request,*args, **kwargs)
                 return response
+            elif user_info=="Forbidden":
+                return Forbidden(request)
             else:
                 return AuthFailed2(request,1008,"authorization failed")
         return decorated_function
     return decorator
-
-# @auth.verify_password
-# def verify_password(token,password):
-#     '''
-#     header传账号密码格式:
-#         key=Authorization
-#         value=basic base64(Air:123456)
-#     '''
-#     user_info=verify_auth_token(token)
-#     if not user_info:
-#         return False                    #拿不到用户信息，返回验证不通过
-#     else:
-#         g.user=user_info                #将用户信息放在 g 变量中
-#         return True
 
 def verify_auth_token(request,token):       #获取token中的信息。验证token合法性
     s = Serializer(request.app.config['SECRET_KEY'])
@@ -54,7 +42,7 @@ def verify_auth_token(request,token):       #获取token中的信息。验证tok
     uid=data['uid']
     ac_type=data['type']
     scope=data['scope']
-    # allow=is_in_scope(scope,request.endpoint)     #endpoint表示要访问的视图函数，类似于url_for
-    # if not allow:
-    #     raise Forbidden()
+    allow=is_in_scope(scope,request.uri_template)     #endpoint表示要访问的视图函数，类似于url_for
+    if not allow:
+        return "Forbidden"
     return User(uid,ac_type,scope)

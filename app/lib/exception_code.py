@@ -50,3 +50,12 @@ def NotFound(request):
         status=404,
         content_type="application/json",
     )
+
+def Forbidden(request):
+    return HTTPResponse(
+        json_dumps(
+            {"error_code": 1004, "message": "forbidden, not in scope","request": request.method + " " + request.path}),
+        headers=None,
+        status=403, #权限不够
+        content_type="application/json",
+    )

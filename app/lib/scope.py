@@ -24,6 +24,3 @@ def is_in_scope(scope,endpoint):
         return True
     else:
         return False
-
-if __name__ == '__main__':
-    print(is_in_scope('AdminScope','/v1/user/<uid>'))
