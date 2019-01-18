@@ -11,12 +11,13 @@ User=namedtuple('User',['uid','ac_type','scope'])
 verify_password接收令牌-->交给verify_auth_token解析-->将解析出的用户信息通过namedtuple存放在g变量中
 '''
 
-def authorized():       #验证权限的装饰器
+def authorized():
+    #验证Authorization的装饰器
     def decorator(f):
         @wraps(f)
         async def decorated_function(request, *args, **kwargs):
-            if request.headers.get("Authorization",None):
-                user_info = verify_auth_token(request,request.headers["Authorization"])
+            if request.token:
+                user_info = verify_auth_token(request,request.token)    #equest.token:获取headers的Authorization字段
             else:
                 return AuthFailed2(request,1007,"Can not find Authorization in headers")
 
@@ -45,8 +46,8 @@ def verify_auth_token(request,token):       #获取token中的信息。验证tok
     if not request.uri_template.endswith("/"):
         request.uri_template += "/"
     allow=is_in_scope(scope,request.method+"+"+request.uri_template)     #endpoint表示要访问的视图函数，类似于url_for
-    print(request.method+"+"+request.uri_template)
-    print(allow)
+    # print(request.method+"+"+request.uri_template)
+    # print(allow)
     if not allow:
         return "Forbidden"
     return User(uid,ac_type,scope)
