@@ -67,7 +67,6 @@ class User:
             verfy = await self.check_secret(result[6], password)
             if verfy:
                 scope = 'AdminScope' if result[5] == 2 else 'UserScope'
-                print({'uid':result[2],'scope':scope})
                 return {'uid':result[2],'scope':scope}
             else:
                 return "Password Incorrect"

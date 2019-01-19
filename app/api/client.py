@@ -23,6 +23,5 @@ async def create_client(request):
 async def __register_user_by_email(request):
     form=UserEmailForm(data=request.json)
     if form.validate():
-        print(request.json)
         user=User(request=request,**request.json)
         await user.register_email()

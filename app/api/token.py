@@ -32,12 +32,11 @@ async def get_token(request):
 
         # 生成token令牌
         expiration = request.app.config['TOKEN_EXPIRATION']
-        print(identity['uid'], form.type.data, identity['scope'], expiration)
         token = generate_auth_token(request,identity['uid'], request.json["type"], identity['scope'], expiration)
         t = {
             'token': token.decode('ascii')  # 将bytes类型字符串转化成普通字符串
         }
-        return json(t)
+        return json(t,status=201)
     return ParameterException(request)
 
 

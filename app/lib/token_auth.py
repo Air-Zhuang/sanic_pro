@@ -6,18 +6,15 @@ from app.lib.scope import is_in_scope
 
 User=namedtuple('User',['uid','ac_type','scope'])
 
-'''
-这里将token当做账号，密码不传的方式来传送token,password占位用。(如果实际调用，传入的key:value要经过base64加密)
-verify_password接收令牌-->交给verify_auth_token解析-->将解析出的用户信息通过namedtuple存放在g变量中
-'''
-
 def authorized():
-    #验证Authorization的装饰器
+    '''
+    request.token从headers的Authorization字段接收令牌-->交给verify_auth_token解析-->将解析出的用户信息放回到headers的user_info字段
+    '''
     def decorator(f):
         @wraps(f)
         async def decorated_function(request, *args, **kwargs):
             if request.token:
-                user_info = verify_auth_token(request,request.token)    #equest.token:获取headers的Authorization字段
+                user_info = verify_auth_token(request,request.token)    #request.token:获取headers的Authorization字段
             else:
                 return AuthFailed2(request,1007,"Can not find Authorization in headers")
 
