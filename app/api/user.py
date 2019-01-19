@@ -18,7 +18,7 @@ async def super_get_user(request,uid):
 @authorized()
 async def get_user(request):
     user=User(request=request)
-    result=await user.select_information("id",request.headers["user_info"].uid) #装饰器将解析出的用户信息放在headers的user_info字段
+    result=await user.select_information("id",request["user_info"].uid) #装饰器将解析出的用户信息放在headers的user_info字段
     return json(result)
 
 

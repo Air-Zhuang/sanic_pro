@@ -8,7 +8,7 @@ User=namedtuple('User',['uid','ac_type','scope'])
 
 def authorized():
     '''
-    request.token从headers的Authorization字段接收令牌-->交给verify_auth_token解析-->将解析出的用户信息放回到headers的user_info字段
+    request.token从headers的Authorization字段接收令牌-->交给verify_auth_token解析-->将解析出的用户信息放到request["user_info"]字段
     '''
     def decorator(f):
         @wraps(f)
@@ -19,7 +19,7 @@ def authorized():
                 return AuthFailed2(request,1007,"Can not find Authorization in headers")
 
             if isinstance(user_info,User):
-                request.headers["user_info"] = user_info
+                request["user_info"] = user_info
                 response = await f(request,*args, **kwargs)
                 return response
             elif user_info=="Forbidden":

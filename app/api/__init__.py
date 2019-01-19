@@ -4,7 +4,7 @@ from sanic.response import text
 import aiomysql
 from functools import partial
 
-bp_v1 = Blueprint('bp_v1',url_prefix='/v1')    #给蓝图起名，慎重
+bp_v1 = Blueprint('bp_v1',url_prefix='/', version="v1")    #给蓝图起名，慎重
 
 '''=========================middleware==============================================='''
 @bp_v1.middleware
