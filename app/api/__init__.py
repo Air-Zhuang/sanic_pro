@@ -7,17 +7,17 @@ from functools import partial
 bp_v1 = Blueprint('bp_v1',url_prefix='/', version="v1")    #给蓝图起名，慎重
 
 '''=========================middleware==============================================='''
-@bp_v1.middleware
-async def print_on_request(request):
-    print("bp_middleware")
-
-@bp_v1.middleware('request')
-async def halt_request(request):
-    print("bp_middleware --> request")
-
-@bp_v1.middleware('response')
-async def halt_response(request, response):
-    print("bp_middleware --> response")
+# @bp_v1.middleware
+# async def print_on_request(request):
+#     print("bp_middleware")
+#
+# @bp_v1.middleware('request')
+# async def halt_request(request):
+#     print("bp_middleware --> request")
+#
+# @bp_v1.middleware('response')
+# async def halt_response(request, response):
+#     print("bp_middleware --> response")
     # response.headers["Server"] = "Fake-Server"        #中间件可以修改请求
     # response.headers["x-xss-protection"] = "1; mode=block"
 
@@ -57,3 +57,4 @@ from app.api import client
 from app.api import token
 from app.api import book
 from app.api import user
+from app.api import location
