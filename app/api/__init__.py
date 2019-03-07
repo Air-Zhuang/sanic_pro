@@ -58,3 +58,4 @@ from app.api import token
 from app.api import book
 from app.api import user
 from app.api import location
+from app.api import amazon
